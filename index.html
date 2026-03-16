@@ -77,24 +77,39 @@
 
     async function loadTrendData() {
         const conn = document.getElementById('connection-status');
-        const proxy = "https://corsproxy.io/?";
+        
+        // ပိုပြီးတည်ငြိမ်တဲ့ Proxy Option များ (တစ်ခုမရလျှင် တစ်ခုပြောင်းသုံးနိုင်သည်)
+        // Option 1: allorigins.win
+        // Option 2: https://corsproxy.io/?
+        const proxyPrefix = "https://corsproxy.io/?"; 
         const finalUrl = proxyPrefix + encodeURIComponent(API_URL + "?t=" + Date.now());
 
         try {
-            const res = await fetch(finalUrl);
-            const responseData = await res.json();
-            const data = JSON.parse(responseData.contents);
+            // Fetch configuration တွင် cache မလုပ်ရန် သတ်မှတ်သည်
+            const res = await fetch(finalUrl, { cache: "no-store" });
+            
+            // corsproxy.io ကိုသုံးလျှင် တိုက်ရိုက် json() ဖတ်နိုင်သည်
+            const data = await res.json();
 
             if (data && data.length > 0) {
-                // Newest First
                 renderModernChart(data.reverse().slice(0, 35)); 
                 document.getElementById('last-update').innerText = "Last Update: " + new Date().toLocaleTimeString();
-                conn.innerText = "? Live Connected (No-VPN)";
+                conn.innerText = "● Live Connected (No-VPN)";
                 conn.style.color = "#22c55e";
             }
         } catch (e) {
-            conn.innerText = "? Reconnecting...";
+            console.error("Fetch error:", e);
+            conn.innerText = "○ Reconnecting (Attempting Proxy)...";
             conn.style.color = "#f1c40f";
+            
+            // Error တက်ပါက original proxy ဖြင့် ပြန်ကြိုးစားခြင်း (Fallback)
+            try {
+               const fallbackUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(API_URL);
+               const res = await fetch(fallbackUrl);
+               const responseData = await res.json();
+               const data = JSON.parse(responseData.contents);
+               if(data) renderModernChart(data.reverse().slice(0, 35));
+            } catch(err) {}
         }
     }
 
