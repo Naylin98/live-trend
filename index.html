@@ -77,36 +77,34 @@
 
     async function loadTrendData() {
         const conn = document.getElementById('connection-status');
+        const proxy = "https://api.allorigins.win/get?url=";
         
-        // thingproxy URL (အနောက်မှာ API URL ကို တန်းဆက်ရုံပါပဲ)
-        const proxyPrefix = "https://api.allorigins.win/get?url=";
-        const finalUrl = proxyPrefix + API_URL; // URL encode လုပ်ရန် တစ်ခါတစ်ရံ မလိုတတ်ပါ
+        // Cache မငြိစေရန် Timestamp (?t=...) ထည့်ထားသည်
+        const finalUrl = proxy + encodeURIComponent(API_URL + "?t=" + Date.now());
 
         try {
-            // Fetch configuration
-            const res = await fetch(finalUrl, {
-                method: 'GET',
-                mode: 'cors', // Cross-Origin Resource Sharing ကို ခွင့်ပြုရန်
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
+            const res = await fetch(finalUrl);
+            if (!res.ok) throw new Error('Network response was not ok');
             
-            const data = await res.json();
+            const responseData = await res.json();
+            
+            // allorigins က data ကို contents ဆိုတဲ့ string ထဲမှာ ထည့်ပေးသဖြင့် parse လုပ်ရသည်
+            const data = JSON.parse(responseData.contents);
 
             if (data && data.length > 0) {
+                // Newest First (အသစ်ဆုံးကို ထိပ်ကပြရန်)
                 renderModernChart(data.reverse().slice(0, 35)); 
+                
                 document.getElementById('last-update').innerText = "Last Update: " + new Date().toLocaleTimeString();
-                conn.innerText = "● Live Connected (ThingProxy)";
+                conn.innerText = "● Live Connected (AllOrigins)";
                 conn.style.color = "#22c55e";
             }
         } catch (e) {
-            console.error("Fetch error with ThingProxy:", e);
-            conn.innerText = "○ Proxy Error - Retrying...";
+            console.error("Fetch error:", e);
+            conn.innerText = "○ Connection Lost - Retrying...";
             conn.style.color = "#ef4444";
         }
     }
-
     function getActiveClass(digit) {
         const d = parseInt(digit);
         if ([1, 3, 7, 9].includes(d)) return "active-green";
