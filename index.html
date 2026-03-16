@@ -78,38 +78,32 @@
     async function loadTrendData() {
         const conn = document.getElementById('connection-status');
         
-        // ပိုပြီးတည်ငြိမ်တဲ့ Proxy Option များ (တစ်ခုမရလျှင် တစ်ခုပြောင်းသုံးနိုင်သည်)
-        // Option 1: allorigins.win
-        // Option 2: https://corsproxy.io/?
-        const proxyPrefix = "https://corsproxy.io/?"; 
-        const finalUrl = proxyPrefix + encodeURIComponent(API_URL + "?t=" + Date.now());
+        // thingproxy URL (အနောက်မှာ API URL ကို တန်းဆက်ရုံပါပဲ)
+        const proxyPrefix = "https://thingproxy.freeboard.io/fetch/";
+        const finalUrl = proxyPrefix + API_URL; // URL encode လုပ်ရန် တစ်ခါတစ်ရံ မလိုတတ်ပါ
 
         try {
-            // Fetch configuration တွင် cache မလုပ်ရန် သတ်မှတ်သည်
-            const res = await fetch(finalUrl, { cache: "no-store" });
+            // Fetch configuration
+            const res = await fetch(finalUrl, {
+                method: 'GET',
+                mode: 'cors', // Cross-Origin Resource Sharing ကို ခွင့်ပြုရန်
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
             
-            // corsproxy.io ကိုသုံးလျှင် တိုက်ရိုက် json() ဖတ်နိုင်သည်
             const data = await res.json();
 
             if (data && data.length > 0) {
                 renderModernChart(data.reverse().slice(0, 35)); 
                 document.getElementById('last-update').innerText = "Last Update: " + new Date().toLocaleTimeString();
-                conn.innerText = "● Live Connected (No-VPN)";
+                conn.innerText = "● Live Connected (ThingProxy)";
                 conn.style.color = "#22c55e";
             }
         } catch (e) {
-            console.error("Fetch error:", e);
-            conn.innerText = "○ Reconnecting (Attempting Proxy)...";
-            conn.style.color = "#f1c40f";
-            
-            // Error တက်ပါက original proxy ဖြင့် ပြန်ကြိုးစားခြင်း (Fallback)
-            try {
-               const fallbackUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(API_URL);
-               const res = await fetch(fallbackUrl);
-               const responseData = await res.json();
-               const data = JSON.parse(responseData.contents);
-               if(data) renderModernChart(data.reverse().slice(0, 35));
-            } catch(err) {}
+            console.error("Fetch error with ThingProxy:", e);
+            conn.innerText = "○ Proxy Error - Retrying...";
+            conn.style.color = "#ef4444";
         }
     }
 
