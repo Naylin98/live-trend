@@ -77,8 +77,8 @@
 
     async function loadTrendData() {
         const conn = document.getElementById('connection-status');
-        const proxy = "https://api.allorigins.win/get?url=";
-        const finalUrl = proxy + encodeURIComponent(API_URL + "?t=" + Date.now());
+        const proxy = "https://corsproxy.io/?";
+        const finalUrl = proxyPrefix + encodeURIComponent(API_URL + "?t=" + Date.now());
 
         try {
             const res = await fetch(finalUrl);
