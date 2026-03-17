@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRX Live Trend - No VPN</title>
+    <title>TRX Live - Direct Fast</title>
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -15,7 +15,7 @@
         }
 
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             background-color: var(--bg-dark); 
             color: var(--text-main); 
             margin: 0; padding: 15px;
@@ -37,6 +37,7 @@
             border-bottom: 2px solid var(--border);
         }
 
+        /* Horizontal Scroll - ဘေးတိုက်ကြည့်ရန် */
         #chartData {
             display: flex;
             flex-direction: row;
@@ -44,8 +45,6 @@
             gap: 15px;
             padding: 10px 5px 25px 5px;
             scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            min-height: 200px;
         }
 
         .row-grid {
@@ -56,10 +55,10 @@
             border-radius: 15px;
             padding: 15px;
             flex-shrink: 0;
-            transition: transform 0.2s, border-color 0.2s;
+            transition: transform 0.2s;
         }
 
-        .row-grid:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .row-grid:hover { transform: translateY(-5px); border-color: var(--accent); }
 
         .row-label { font-size: 13px; color: var(--text-dim); text-align: center; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 
@@ -93,55 +92,46 @@
 <body>
 
 <div class="container">
-    <div class="header">TRX MODERN TREND (LIVE)</div>
+    <div class="header">TRX MODERN TREND (DIRECT)</div>
     <div id="chartData">
-        <div style="padding: 20px; text-align: center; width: 100%;" id="loading-text">⌛ Connecting to TRX Network via Proxy...</div>
+        <div style="padding: 20px; text-align: center; width: 100%;">⌛ Connecting Directly to Google Cloud...</div>
     </div>
 </div>
 
 <div class="footer">
-    <div id="status">? Initializing Proxy...</div>
+    <div id="status">● Status: Initializing...</div>
     <div id="timer">Last Update: --:--:--</div>
 </div>
 
 <script>
+    // Proxy မပါသော တိုက်ရိုက် URL
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFu8umzrtkcV-KRXWGGc_8v8xQMU9XBkl2HbPevwnp7ilUBPud2pIkpjpWQNQi8HOM/exec";
-    const REFRESH_RATE = 12000;
+    const REFRESH_RATE = 7000; // ၇ စက္ကန့်တစ်ခါ Update လုပ်မည် (ပိုမြန်သည်)
 
     async function fetchTrend() {
         const statusEl = document.getElementById('status');
-        const loadingEl = document.getElementById('loading-text');
         
-        // Proxy နှစ်ခုကို စမ်းမည် (corsproxy မရလျှင် allorigins နှင့် စမ်းမည်)
-        const proxies = [
-            `https://corsproxy.io/?${encodeURIComponent(GOOGLE_SCRIPT_URL + "?t=" + Date.now())}`,
-            `https://api.allorigins.win/get?url=${encodeURIComponent(GOOGLE_SCRIPT_URL + "?t=" + Date.now())}`
-        ];
+        try {
+            // Proxy မပါဘဲ တိုက်ရိုက် Fetch လုပ်ခြင်း
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: "GET",
+                redirect: "follow" // Google Script ၏ Redirect ကို လိုက်နာရန်
+            });
 
-        let data = null;
+            if (!response.ok) throw new Error("Network Error");
+            
+            const data = await response.json();
 
-        for (let url of proxies) {
-            try {
-                const response = await fetch(url);
-                const result = await response.json();
-                
-                // allorigins ဖြစ်လျှင် result.contents ထဲတွင်ရှိသည်၊ corsproxy ဖြစ်လျှင် result ထဲတွင် တိုက်ရိုက်ရှိသည်
-                data = result.contents ? JSON.parse(result.contents) : result;
-                
-                if (data && data.length > 0) break; 
-            } catch (err) {
-                console.log("Proxy failed, trying next...");
+            if (data && data.length > 0) {
+                renderCards(data.slice(-25)); 
+                statusEl.innerHTML = "● Direct Connected (No-Proxy)";
+                statusEl.style.color = "#22c55e";
+                document.getElementById('timer').innerText = "Last Update: " + new Date().toLocaleTimeString();
             }
-        }
-
-        if (data && data.length > 0) {
-            renderCards(data.slice(-25)); 
-            statusEl.innerHTML = "● Live Connected";
-            statusEl.style.color = "#22c55e";
-            document.getElementById('timer').innerText = "Last Update: " + new Date().toLocaleTimeString();
-        } else {
-            statusEl.innerHTML = "○ Connection Error - Retrying...";
-            statusEl.style.color = "#f1c40f";
+        } catch (err) {
+            console.error("Fetch Error:", err);
+            statusEl.innerHTML = "○ Connection Failed (Check VPN)";
+            statusEl.style.color = "#ef4444";
         }
     }
 
@@ -170,7 +160,7 @@
 
             container.innerHTML += `
                 <div class="row-grid">
-                    <div class="row-label">BLOCK #${item.label}</div>
+                    <div class="row-label">BLOCK #${item.label || '---'}</div>
                     <div class="cells">${cellsHtml}</div>
                     <div class="side-info">
                         <div class="info-row">
@@ -178,13 +168,14 @@
                             <div class="pred-val">${item.prediction || ""}</div>
                             <div class="${resClass}">${item.result || "WAIT"}</div>
                         </div>
-                        <div class="extra-msg">${item.extraData || "Flowing..."}</div>
-                        <div class="strend-box">${item.strend || "Pattern Pending"}</div>
+                        <div class="extra-msg">${item.extraData || "Real-time Flow"}</div>
+                        <div class="strend-box">${item.strend || "Analyzing..."}</div>
                     </div>
                 </div>
             `;
         });
 
+        // ညာဘက်အစွန်ဆုံးသို့ Auto Scroll
         setTimeout(() => {
             container.scrollLeft = container.scrollWidth;
         }, 300);
