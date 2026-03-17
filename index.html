@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRX Live - VPN Free</title>
+    <title>TRX Live - Direct Fast (Modern UI)</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #0f172a; display: flex; justify-content: center; padding: 10px; color: #f8fafc; overflow-x: hidden; }
-        .container { background: #1e293b; padding: 20px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; width: 100%; max-width: 1000px; border: 1px solid #334155; }
+        .container { background: #1e293b; padding: 20px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; width: 100%; max-width: 1100px; border: 1px solid #334155; }
         .header { text-align: center; color: #f1c40f; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; font-size: 20px; font-weight: bold; letter-spacing: 1px; }
         
         .row-grid { display: flex; align-items: center; height: 45px; border-bottom: 1px solid #334155; position: relative; z-index: 5; }
@@ -19,17 +19,76 @@
         .active-red { background-color: #ef4444 !important; color: white !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
         .active-purple { background-color: #a855f7 !important; color: white !important; box-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
 
-        .side-info { display: flex; align-items: center; width: 450px; padding-left: 15px; border-left: 1px solid #334155; overflow: hidden; }
-        .text-s, .text-b { width: 35px; font-weight: 900; font-size: 16px; text-align: center; margin-right: 10px; }
+        /* --- Side Info Layout & Spacing --- */
+        .side-info { 
+            display: flex; 
+            align-items: center; 
+            width: 550px; 
+            padding-left: 15px; 
+            border-left: 1px solid #334155; 
+            gap: 15px; /* တစ်ခုချင်းစီကြား နေရာလွတ်ချန်ခြင်း */
+        }
+        
+        .text-s, .text-b { width: 35px; font-weight: 900; font-size: 16px; text-align: center; flex-shrink: 0; }
         .text-s { color: #3498db; }
         .text-b { color: #e67e22; }
 
-        .extra-text { width: 110px; font-size: 12px; color: #cbd5e1; font-style: italic; white-space: nowrap; overflow: hidden; }
-        .pred-text { width: 40px; color: #f1c40f; font-weight: bold; font-size: 16px; text-align: center; }
-        .win-text, .loss-text { width: 60px; font-weight: bold; font-size: 14px; text-align: center; }
-        .win-text { color: #22c55e; }
-        .loss-text { color: #ef4444; }
-        .strend-text { width: 150px; color: #94a3b8; font-family: monospace; font-size: 12px; margin-left: 10px; }
+        .extra-text { width: 110px; font-size: 12px; color: #cbd5e1; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .pred-text { 
+            width: 45px; 
+            color: #f1c40f; 
+            font-weight: bold; 
+            font-size: 16px; 
+            text-align: center; 
+            background: rgba(241, 196, 15, 0.1); 
+            border-radius: 4px; 
+            padding: 2px 0;
+        }
+
+        /* --- Win/Loss Blink Effects --- */
+        .win-text, .loss-text { 
+            width: 70px; 
+            font-weight: bold; 
+            font-size: 13px; 
+            text-align: center; 
+            padding: 4px 0; 
+            border-radius: 5px; 
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .win-text { 
+            color: #22c55e; 
+            background: rgba(34, 197, 94, 0.15); 
+            animation: win-blink 1.5s infinite; 
+        }
+        .loss-text { 
+            color: #ef4444; 
+            background: rgba(239, 68, 68, 0.15); 
+            animation: loss-blink 1.5s infinite; 
+        }
+
+        @keyframes win-blink {
+            0% { background: rgba(34, 197, 94, 0.15); box-shadow: 0 0 0px rgba(34, 197, 94, 0); }
+            50% { background: rgba(34, 197, 94, 0.4); box-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+            100% { background: rgba(34, 197, 94, 0.15); box-shadow: 0 0 0px rgba(34, 197, 94, 0); }
+        }
+
+        @keyframes loss-blink {
+            0% { background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 0px rgba(239, 68, 68, 0); }
+            50% { background: rgba(239, 68, 68, 0.4); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+            100% { background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 0px rgba(239, 68, 68, 0); }
+        }
+
+        .strend-text { 
+            flex-grow: 1; 
+            color: #64748b; 
+            font-family: monospace; 
+            font-size: 12px; 
+            text-align: right; 
+            padding-right: 5px;
+        }
 
         canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
         .footer-info { display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 20px; }
@@ -38,11 +97,11 @@
 <body>
 
 <div class="container" id="chartBox">
-    <div class="header">TRX MODERN TREND (NO-VPN LIVE)</div>
+    <div class="header">TRX MODERN TREND (DIRECT LIVE)</div>
     <canvas id="lineCanvas"></canvas>
-    <div id="chartData" style="text-align: center; padding: 20px;">⌛ Initializing Secure Connection...</div>
+    <div id="chartData" style="text-align: center; padding: 20px;">⌛ Connecting Directly to Google...</div>
     <div class="footer-info">
-        <div id="connection-status">● Connecting...</div>
+        <div id="connection-status">● Status: Initializing...</div>
         <div id="last-update">Last Update: --:--:--</div>
     </div>
 </div>
@@ -51,43 +110,22 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbxFu8umzrtkcV-KRXWGGc_8v8xQMU9XBkl2HbPevwnp7ilUBPud2pIkpjpWQNQi8HOM/exec"; 
     const REFRESH_INTERVAL = 5000;
 
-    // မြန်မာပြည်မှ VPN မလိုဘဲ ချိတ်ဆက်နိုင်မည့် Proxy List
-    const PROXIES = [
-        "https://api.allorigins.win/get?url=",
-        "https://corsproxy.io/?",
-        "https://thingproxy.freeboard.io/fetch/"
-    ];
-
     async function loadTrendData() {
         const conn = document.getElementById('connection-status');
-        let dataFound = false;
+        try {
+            const res = await fetch(API_URL + "?t=" + Date.now(), { method: "GET", redirect: "follow" });
+            if (!res.ok) throw new Error("Fail");
+            const rawData = await res.json();
 
-        // Proxy တစ်ခုချင်းစီကို စမ်းသပ်ချိတ်ဆက်ခြင်း
-        for (let proxy of PROXIES) {
-            if (dataFound) break;
-            try {
-                const finalUrl = proxy + encodeURIComponent(API_URL + "?t=" + Date.now());
-                const res = await fetch(finalUrl);
-                const responseData = await res.json();
-                
-                // AllOrigins အတွက် contents ကို parse လုပ်ရန်လိုသည်၊ corsproxy အတွက် တိုက်ရိုက်ယူသည်
-                const rawData = responseData.contents ? JSON.parse(responseData.contents) : responseData;
-
-                if (rawData && rawData.length > 0) {
-                    renderModernChart(rawData.reverse().slice(0, 35)); 
-                    document.getElementById('last-update').innerText = "Last Update: " + new Date().toLocaleTimeString();
-                    conn.innerText = "● Connected via Secure Proxy (No-VPN)";
-                    conn.style.color = "#22c55e";
-                    dataFound = true;
-                }
-            } catch (e) {
-                console.log("Switching Proxy...");
+            if (rawData && rawData.length > 0) {
+                renderModernChart(rawData.reverse().slice(0, 35)); 
+                document.getElementById('last-update').innerText = "Last Update: " + new Date().toLocaleTimeString();
+                conn.innerText = "● Direct Connected (Fast)";
+                conn.style.color = "#22c55e";
             }
-        }
-
-        if (!dataFound) {
-            conn.innerText = "○ Connection Failed - Retrying...";
-            conn.style.color = "#f1c40f";
+        } catch (e) {
+            conn.innerText = "○ Connection Error (Check VPN)";
+            conn.style.color = "#ef4444";
         }
     }
 
@@ -125,7 +163,7 @@
                     <div class="cells">${digitsHtml}</div>
                     <div class="side-info">
                         <div class="${type === 'B' ? 'text-b' : 'text-s'}">${type}</div>
-                        <div class="extra-text">${item.extraData || ""}</div>
+                        <div class="extra-text" title="${item.extraData || ''}">${item.extraData || ""}</div>
                         <div class="pred-text">${item.prediction || ""}</div>
                         <div class="${resClass}">${item.result ||  "----"}</div>
                         <div class="strend-text">${item.strend || ""}</div>
@@ -133,7 +171,6 @@
                 </div>`;
         });
 
-        // Drawing Connection Lines
         setTimeout(() => {
             canvas.width = container.offsetWidth;
             canvas.height = container.offsetHeight;
