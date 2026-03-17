@@ -115,10 +115,9 @@
 
     function renderModernChart(displayData) {
         const output = document.getElementById('chartData');
-        const container = document.getElementById('chartBox');
-        const canvas = document.getElementById('lineCanvas');
-        const ctx = canvas.getContext('2d');
         
+        // Data အဟောင်းတွေကို မဖျက်ဘဲ အသစ်တွေကိုပဲ စစ်ပြီး ထည့်မည်
+        // မှတ်ချက် - displayData က အသစ်ဆုံးကို အရင်ယူထားရင် slice(0, 10) စသဖြင့် ဖြတ်ယူနိုင်သည်
         output.innerHTML = ""; 
 
         displayData.forEach((item, rIdx) => {
@@ -133,19 +132,28 @@
                 digitsHtml += `<div class="cell ${highlight}" id="dot-${rIdx}-${i}">${i}</div>`;
             }
 
+            // တစ်ကြောင်းချင်းစီကို ကတ်ပြား (Card) ပုံစံဖြင့် ညာဘက်သို့ စီသွားမည်
             output.innerHTML += `
                 <div class="row-grid">
-                    <div class="row-label">${item.label}</div>
-                    <div class="cells">${digitsHtml}</div>
+                    <div class="row-label" style="width:100%; border-bottom:1px solid #334155; padding-bottom:5px; margin-bottom:5px;">
+                        ${item.label}
+                    </div>
+                    <div class="cells" style="width:100%; border:none;">${digitsHtml}</div>
                     <div class="side-info">
-                        <div class="${type === 'B' ? 'text-b' : 'text-s'}">${type}</div>
-                        <div class="extra-text">${item.extraData || ""}</div>
-                        <div class="pred-text">${item.prediction || ""}</div>
-                        <div class="${resClass}">${item.result ||  "----"}</div>
-                        <div class="strend-text">${item.strend || ""}</div>
+                        <div style="display:flex; justify-content: space-between; width:100%;">
+                             <div class="${type === 'B' ? 'text-b' : 'text-s'}">${type}</div>
+                             <div class="pred-text">${item.prediction || ""}</div>
+                             <div class="${resClass}">${item.result || "----"}</div>
+                        </div>
+                        <div class="extra-text" style="width:100%; margin-top:5px;">${item.extraData || ""}</div>
+                        <div class="strend-text" style="width:100%; text-align:left; margin-top:5px;">${item.strend || ""}</div>
                     </div>
                 </div>`;
         });
+
+        // အသစ်တိုးလာတိုင်း Scroll ကို ညာဘက်အဆုံးသို့ ပို့ပေးခြင်း
+        output.scrollLeft = output.scrollWidth;
+    }
 
         // Drawing Line Logic
         setTimeout(() => {
