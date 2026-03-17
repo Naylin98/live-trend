@@ -19,14 +19,13 @@
         .active-red { background-color: #ef4444 !important; color: white !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
         .active-purple { background-color: #a855f7 !important; color: white !important; box-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
 
-        /* --- Side Info Layout & Spacing --- */
         .side-info { 
             display: flex; 
             align-items: center; 
             width: 600px; 
             padding-left: 15px; 
             border-left: 1px solid #334155; 
-            gap: 15px; /* တစ်ခုချင်းစီကြား နေရာလွတ်ချန်ခြင်း */
+            gap: 15px; 
         }
         
         .text-s, .text-b { width: 35px; font-weight: 500; font-size: 18px; text-align: center; flex-shrink: 0; }
@@ -46,7 +45,6 @@
             padding: 2px 0;
         }
 
-        /* --- Win/Loss Blink Effects --- */
         .win-text, .loss-text { 
             width: 70px; 
             font-weight: bold; 
@@ -172,19 +170,19 @@
                 </div>`;
         });
 
-     setTimeout(() => {
+        // Drawing Line logic (အနီရောင် Solid Line ပြင်ဆင်ထားသော အပိုင်း)
+        setTimeout(() => {
             canvas.width = container.offsetWidth;
             canvas.height = container.offsetHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // မျဉ်းလိုင်းကို အနီရောင် ပြောင်းလဲခြင်း
-            ctx.strokeStyle = "#ff4444"; // Solid Red Color
-            ctx.lineWidth = 2.5;         // Line Thickness
-            ctx.setLineDash([]);         // Dash ကို ဖြုတ်ပြီး Solid Line ပြောင်းခြင်း
+            ctx.strokeStyle = "#ff4444"; // အနီရောင်
+            ctx.lineWidth = 2.5; 
+            ctx.setLineDash([]); // Solid Line
             ctx.lineJoin = "round";
             ctx.lineCap = "round";
             
-            // Glow Effect ထည့်သွင်းခြင်း
+            // Glow Effect
             ctx.shadowBlur = 8;
             ctx.shadowColor = "#ff4444";
             
@@ -204,10 +202,9 @@
                 }
             });
             ctx.stroke();
-            
-            // Glow Effect ကို Reset ပြန်လုပ်ခြင်း
-            ctx.shadowBlur = 0;
+            ctx.shadowBlur = 0; // Glow reset
         }, 300);
+    }
 
     loadTrendData();
     setInterval(loadTrendData, REFRESH_INTERVAL);
