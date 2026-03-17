@@ -3,108 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRX Modern Trend - Final Integrated</title>
+    <title>TRX Live Dashboard - Final Version</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #0f172a; display: flex; justify-content: center; padding: 10px; color: #f8fafc; overflow-x: hidden; }
-        .container { background: #1e293b; padding: 20px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; width: 100%; max-width: 1000px; border: 1px solid #334155; }
-        .header { text-align: center; color: #f1c40f; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; font-size: 20px; font-weight: bold; letter-spacing: 1px; }
-        
-        .row-grid { display: flex; align-items: center; height: 45px; border-bottom: 1px solid #334155; position: relative; z-index: 5; }
-        .row-label { width: 90px; font-size: 16px; color: #94a3b8; font-weight: 400; }
-        
-        .cells { display: flex; flex: 0 0 auto; width: 350px; justify-content: center; gap: 4px; padding: 0 10px; align-items: center; border-left: 1px solid #334155; }
-        .cell { width: 28px; height: 28px; line-height: 28px; text-align: center; font-weight: bold; color: #475569; font-size: 16px; border-radius: 50%; transition: 0.3s; }
-        
-        /* Digit Group Colors */
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+        }
+
+        .container { 
+            background: #1e293b; 
+            padding: 20px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            width: 100%; 
+            max-width: 1200px; 
+            border: 1px solid #334155; 
+        }
+
+        .header { 
+            text-align: center; 
+            color: #f1c40f; 
+            margin-bottom: 20px; 
+            font-size: 22px; 
+            font-weight: bold; 
+            letter-spacing: 1px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 15px;
+        }
+
+        /* ဘေးတိုက် Scroll ဆွဲမည့် Container */
+        #chartData {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 15px;
+            padding: 10px 5px 20px 5px;
+            scroll-behavior: smooth;
+        }
+
+        /* တစ်ကြောင်းချင်းစီကို ကတ်ပြား (Card) ပုံစံဖြင့် ပြခြင်း */
+        .row-grid {
+            display: flex;
+            flex-direction: column;
+            min-width: 280px; /* ဖုန်းနဲ့ကြည့်ရင် အဆင်ပြေမည့် အကျယ် */
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 15px;
+            padding: 15px;
+            flex-shrink: 0;
+            transition: 0.3s;
+        }
+
+        .row-grid:hover { border-color: #f1c40f; }
+
+        .row-label { 
+            font-size: 14px; 
+            color: #94a3b8; 
+            margin-bottom: 10px; 
+            text-align: center;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
+        }
+
+        .cells { 
+            display: flex; 
+            justify-content: center; 
+            gap: 5px; 
+            margin-bottom: 15px;
+        }
+
+        .cell { 
+            width: 24px; height: 24px; 
+            line-height: 24px; 
+            text-align: center; 
+            font-weight: bold; 
+            color: #475569; 
+            font-size: 14px; 
+            border-radius: 50%; 
+            border: 1px solid #334155;
+        }
+
         .active-green { background-color: #22c55e !important; color: white !important; box-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
         .active-red { background-color: #ef4444 !important; color: white !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
         .active-purple { background-color: #a855f7 !important; color: white !important; box-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
 
-        /* Side Info Container - ?????????????????? ?????? */
-.side-info { 
-    display: flex; 
-    align-items: center; 
-    width: 420px;           /* ???????????????? ??????????????? */
-    padding-left: 15px; 
-    border-left: 1px solid #334155; 
-}
+        .side-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-/* B/S Type */
-.text-s, .text-b { width: 30px; font-weight: 900; font-size: 18px; text-align: center; margin-right: 10px; }
-.text-s { color: #3498db; }
-.text-b { color: #e67e22; }
+        .info-top { display: flex; justify-content: space-between; align-items: center; }
 
-/* Trend Status (Extra Data) */
-.extra-text { width: 120px; font-size: 14px; color: #cbd5e1; font-style: italic; white-space: nowrap; overflow: hidden; }
+        .text-s { color: #3498db; font-weight: 900; font-size: 18px; }
+        .text-b { color: #e67e22; font-weight: 900; font-size: 18px; }
+        .pred-text { color: #f1c40f; font-weight: bold; font-size: 20px; }
+        .win-text { color: #22c55e; font-weight: bold; }
+        .loss-text { color: #ef4444; font-weight: bold; }
 
-/* Prediction (P) */
-.pred-text { width: 40px; color: #f1c40f; font-weight: bold; font-size: 18px; text-align: center; }
+        .extra-text { font-size: 13px; color: #cbd5e1; font-style: italic; }
+        .strend-text { 
+            font-family: 'Courier New', monospace; 
+            font-size: 13px; 
+            color: #94a3b8; 
+            word-break: break-all;
+            background: #1e293b;
+            padding: 5px;
+            border-radius: 5px;
+        }
 
-/* Result (Win/Loss) */
-.win-text, .loss-text { width: 60px; font-weight: bold; font-size: 15px; text-align: center; }
-.win-text { color: #22c55e; }
-.loss-text { color: #ef4444; }
-
-/* Strend (????????????????????? ??????????? pattern) */
-.strend-text { 
-    width: 150px; 
-    color: #94a3b8; 
-    font-family: 'Courier New', Courier, monospace; 
-    font-size: 13px; 
-    white-space: nowrap; overflow: hidden; /* ?????????????????? ????????? */
-    margin-left: 10px;
-}
+        .footer-info { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-top: 15px; width: 100%; max-width: 1200px; }
         
-        canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
-        .footer-info { display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 20px; }
+        /* Custom Scrollbar */
+        #chartData::-webkit-scrollbar { height: 8px; }
+        #chartData::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container" id="chartBox">
-    <div class="header">TRX MODERN TREND (LIVE)</div>
-    <canvas id="lineCanvas"></canvas>
+<div class="container">
+    <div class="header">TRX LIVE TREND DASHBOARD</div>
     <div id="chartData">Loading data via Proxy...</div>
-    <div class="footer-info">
-        <div id="connection-status">? Initializing...</div>
-        <div id="last-update">Last Update: --:--:--</div>
-    </div>
+</div>
+
+<div class="footer-info">
+    <div id="connection-status">? Initializing...</div>
+    <div id="last-update">Last Update: --:--:--</div>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxFu8umzrtkcV-KRXWGGc_8v8xQMU9XBkl2HbPevwnp7ilUBPud2pIkpjpWQNQi8HOM/exec"; 
-    const REFRESH_INTERVAL = 12000;
+    const REFRESH_INTERVAL = 12000; // Proxy အတွက် ၁၂ စက္ကန့် ထားပေးပါ
 
     async function loadTrendData() {
         const conn = document.getElementById('connection-status');
-        const proxy = "https://api.allorigins.win/get?url=";
-        
-        // Cache မငြိစေရန် Timestamp (?t=...) ထည့်ထားသည်
+        // corsproxy.io ကိုသုံးထားသဖြင့် VPN မပါဘဲ ပိုတည်ငြိမ်ပါမည်
+        const proxy = "https://corsproxy.io/?"; 
         const finalUrl = proxy + encodeURIComponent(API_URL + "?t=" + Date.now());
 
         try {
             const res = await fetch(finalUrl);
-            if (!res.ok) throw new Error('Network response was not ok');
-            
-            const responseData = await res.json();
-            
-            // allorigins က data ကို contents ဆိုတဲ့ string ထဲမှာ ထည့်ပေးသဖြင့် parse လုပ်ရသည်
-            const data = JSON.parse(responseData.contents);
+            const data = await res.json();
 
             if (data && data.length > 0) {
-                // Newest First (အသစ်ဆုံးကို ထိပ်ကပြရန်)
-                renderModernChart(data.reverse().slice(0, 35)); 
-                
+                // အဟောင်းများကို ဘယ်ဘက်၊ အသစ်များကို ညာဘက်တွင်ပြရန် data.reverse() မလုပ်တော့ပါ
+                renderModernChart(data.slice(-20)); // နောက်ဆုံးအပတ် ၂၀ ကိုပဲ ပြမည်
                 document.getElementById('last-update').innerText = "Last Update: " + new Date().toLocaleTimeString();
-                conn.innerText = "● Live Connected (AllOrigins)";
+                conn.innerText = "● Live Connected (No-VPN)";
                 conn.style.color = "#22c55e";
             }
         } catch (e) {
-            console.error("Fetch error:", e);
-            conn.innerText = "○ Connection Lost - Retrying...";
-            conn.style.color = "#ef4444";
+            conn.innerText = "○ Reconnecting...";
+            conn.style.color = "#f1c40f";
         }
     }
+
     function getActiveClass(digit) {
         const d = parseInt(digit);
         if ([1, 3, 7, 9].includes(d)) return "active-green";
@@ -115,9 +174,6 @@
 
     function renderModernChart(displayData) {
         const output = document.getElementById('chartData');
-        
-        // Data အဟောင်းတွေကို မဖျက်ဘဲ အသစ်တွေကိုပဲ စစ်ပြီး ထည့်မည်
-        // မှတ်ချက် - displayData က အသစ်ဆုံးကို အရင်ယူထားရင် slice(0, 10) စသဖြင့် ဖြတ်ယူနိုင်သည်
         output.innerHTML = ""; 
 
         displayData.forEach((item, rIdx) => {
@@ -129,57 +185,29 @@
             let digitsHtml = "";
             for (let i = 0; i <= 9; i++) {
                 const highlight = (i === currentDigit) ? activeClass : "";
-                digitsHtml += `<div class="cell ${highlight}" id="dot-${rIdx}-${i}">${i}</div>`;
+                digitsHtml += `<div class="cell ${highlight}">${i}</div>`;
             }
 
-            // တစ်ကြောင်းချင်းစီကို ကတ်ပြား (Card) ပုံစံဖြင့် ညာဘက်သို့ စီသွားမည်
             output.innerHTML += `
                 <div class="row-grid">
-                    <div class="row-label" style="width:100%; border-bottom:1px solid #334155; padding-bottom:5px; margin-bottom:5px;">
-                        ${item.label}
-                    </div>
-                    <div class="cells" style="width:100%; border:none;">${digitsHtml}</div>
+                    <div class="row-label">Block: ${item.label}</div>
+                    <div class="cells">${digitsHtml}</div>
                     <div class="side-info">
-                        <div style="display:flex; justify-content: space-between; width:100%;">
-                             <div class="${type === 'B' ? 'text-b' : 'text-s'}">${type}</div>
-                             <div class="pred-text">${item.prediction || ""}</div>
-                             <div class="${resClass}">${item.result || "----"}</div>
+                        <div class="info-top">
+                            <div class="${type === 'B' ? 'text-b' : 'text-s'}">${type} (${currentDigit})</div>
+                            <div class="pred-text">${item.prediction || ""}</div>
+                            <div class="${resClass}">${item.result || "WAIT"}</div>
                         </div>
-                        <div class="extra-text" style="width:100%; margin-top:5px;">${item.extraData || ""}</div>
-                        <div class="strend-text" style="width:100%; text-align:left; margin-top:5px;">${item.strend || ""}</div>
+                        <div class="extra-text">${item.extraData || "Analyzing..."}</div>
+                        <div class="strend-text">${item.strend || "No Pattern"}</div>
                     </div>
                 </div>`;
         });
 
-        // အသစ်တိုးလာတိုင်း Scroll ကို ညာဘက်အဆုံးသို့ ပို့ပေးခြင်း
-        output.scrollLeft = output.scrollWidth;
-    }
-
-        // Drawing Line Logic
+        // အသစ်ဆုံး data ရှိရာ ညာဘက်အဆုံးသို့ Auto Scroll လုပ်ခြင်း
         setTimeout(() => {
-            canvas.width = container.offsetWidth;
-            canvas.height = container.offsetHeight;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = "rgba(241, 196, 15, 0.4)"; 
-            ctx.lineWidth = 2;
-            ctx.setLineDash([5, 3]);
-            ctx.beginPath();
-
-            let hasPoint = false;
-            displayData.forEach((item, i) => {
-                const digit = parseInt(item.digit);
-                const el = document.getElementById(`dot-${i}-${digit}`);
-                if (el) {
-                    const rect = el.getBoundingClientRect();
-                    const cRect = container.getBoundingClientRect();
-                    const x = rect.left - cRect.left + (rect.width / 2);
-                    const y = rect.top - cRect.top + (rect.height / 2);
-                    if (!hasPoint) { ctx.moveTo(x, y); hasPoint = true; }
-                    else ctx.lineTo(x, y);
-                }
-            });
-            ctx.stroke();
-        }, 250);
+            output.scrollLeft = output.scrollWidth;
+        }, 500);
     }
 
     loadTrendData();
