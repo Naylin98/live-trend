@@ -173,30 +173,39 @@
         });
 
      setTimeout(() => {
-            canvas.width = container.offsetWidth;
-            canvas.height = container.offsetHeight;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = "rgba(241, 196, 15, 0.3)"; 
-            ctx.lineWidth = 2;
-            ctx.setLineDash([4, 2]);
-            ctx.beginPath();
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // မျဉ်းလိုင်းကို အနီရောင် ပြောင်းလဲခြင်း
+            ctx.strokeStyle = "#ff4444"; // Solid Red Color
+            ctx.lineWidth = 2.5;         // Line Thickness
+            ctx.setLineDash([]);         // Dash ကို ဖြုတ်ပြီး Solid Line ပြောင်းခြင်း
+            ctx.lineJoin = "round";
+            ctx.lineCap = "round";
+            
+            // Glow Effect ထည့်သွင်းခြင်း
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "#ff4444";
+            
+            ctx.beginPath();
 
-            let hasPoint = false;
-            displayData.forEach((item, i) => {
-                const digit = parseInt(item.digit);
-                const el = document.getElementById(`dot-${i}-${digit}`);
-                if (el) {
-                    const rect = el.getBoundingClientRect();
-                    const cRect = container.getBoundingClientRect();
-                    const x = rect.left - cRect.left + (rect.width / 2);
-                    const y = rect.top - cRect.top + (rect.height / 2);
-                    if (!hasPoint) { ctx.moveTo(x, y); hasPoint = true; }
-                    else ctx.lineTo(x, y);
-                }
-            });
+            let hasPoint = false;
+            displayData.forEach((item, i) => {
+                const digit = parseInt(item.digit);
+                const el = document.getElementById(`dot-${i}-${digit}`);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    const cRect = container.getBoundingClientRect();
+                    const x = rect.left - cRect.left + (rect.width / 2);
+                    const y = rect.top - cRect.top + (rect.height / 2);
+                    if (!hasPoint) { ctx.moveTo(x, y); hasPoint = true; }
+                    else ctx.lineTo(x, y);
+                }
+            });
             ctx.stroke();
             
-            // Glow Effect ကို Reset ပြန်လုပ်ခြင်း (အခြားနေရာတွေ မထိခိုက်စေရန်)
+            // Glow Effect ကို Reset ပြန်လုပ်ခြင်း
             ctx.shadowBlur = 0;
         }, 300);
 
