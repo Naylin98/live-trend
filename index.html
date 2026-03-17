@@ -9,12 +9,12 @@
         .container { background: #1e293b; padding: 20px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; width: 100%; max-width: 1150px; border: 1px solid #334155; }
         .header { text-align: center; color: #f1c40f; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; font-size: 20px; font-weight: bold; letter-spacing: 1px; }
 
-        /* --- New Sticky Header Labels --- */
+        /* --- Updated Sticky Header Labels (Aligned) --- */
         .dashboard-labels {
             display: flex;
             align-items: center;
             background: #1e293b;
-            padding: 10px 0;
+            padding: 12px 0;
             border-bottom: 2px solid #334155;
             font-size: 13px;
             font-weight: bold;
@@ -23,12 +23,17 @@
             position: sticky;
             top: -20px;
             z-index: 100;
-            margin-bottom: 5px;
         }
-        .lbl-trx { width: 130px; padding-left: 5px; }
+        /* အောက်က Row-grid အချိုးအစားအတိုင်း အတိအကျညှိခြင်း */
+        .lbl-trx { width: 130px; padding-left: 0px; text-align: left; }
         .lbl-trend { width: 320px; text-align: center; }
-        .lbl-side { display: flex; width: 600px; padding-left: 15px; gap: 15px; }
-        .lbl-side span { text-align: center; }
+        .lbl-side { 
+            display: flex; 
+            width: 600px; 
+            padding-left: 15px; 
+            gap: 15px; 
+            align-items: center;
+        }
 
         .row-grid { display: flex; align-items: center; height: 45px; border-bottom: 1px solid #334155; position: relative; z-index: 5; }
         .row-label { width: 130px; font-size: 16px; color: #94a3b8; }
@@ -77,16 +82,8 @@
             flex-shrink: 0;
         }
 
-        .win-text { 
-            color: #22c55e; 
-            background: rgba(34, 197, 94, 0.15); 
-            animation: win-blink 1.5s infinite; 
-        }
-        .loss-text { 
-            color: #ef4444; 
-            background: rgba(239, 68, 68, 0.15); 
-            animation: loss-blink 1.5s infinite; 
-        }
+        .win-text { color: #22c55e; background: rgba(34, 197, 94, 0.15); animation: win-blink 1.5s infinite; }
+        .loss-text { color: #ef4444; background: rgba(239, 68, 68, 0.15); animation: loss-blink 1.5s infinite; }
 
         @keyframes win-blink {
             0% { background: rgba(34, 197, 94, 0.15); box-shadow: 0 0 0px rgba(34, 197, 94, 0); }
@@ -100,15 +97,7 @@
             100% { background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 0px rgba(239, 68, 68, 0); }
         }
 
-        .strend-text { 
-            width: 120px; 
-            flex-grow: 1; 
-            color: white; 
-            font-family: monospace; 
-            font-size: 14px; 
-            text-align: left; 
-            padding-right: 5px;
-        }
+        .strend-text { width: 120px; flex-grow: 1; color: white; font-family: monospace; font-size: 14px; text-align: left; padding-right: 5px; }
 
         canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
         .footer-info { display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 20px; }
@@ -120,14 +109,14 @@
     <div class="header">TRX MODERN TREND (DIRECT LIVE)</div>
     
     <div class="dashboard-labels">
-        <div class="lbl-trx">TRX No.</div>
-        <div class="lbl-trend">Trend Line Chart</div>
+        <div class="lbl-trx">TRX NO.</div>
+        <div class="lbl-trend">TREND LINE CHART</div>
         <div class="lbl-side">
-            <span style="width:35px;">Sign</span>
-            <span style="width:110px;">Extra Data</span>
-            <span style="width:45px;">Pred</span>
-            <span style="width:70px;">Result</span>
-            <span style="flex-grow:1; text-align: left;">Flow/Break</span>
+            <span style="width:35px;">SIGN</span>
+            <span style="width:110px;">EXTRA DATA</span>
+            <span style="width:45px;">PRED</span>
+            <span style="width:70px;">RESULT</span>
+            <span style="flex-grow:1; text-align: left;">FLOW/BREAK</span>
         </div>
     </div>
 
@@ -192,7 +181,7 @@
 
             output.innerHTML += `
                 <div class="row-grid">
-                    <div class="row-label">#${item.label}</div>
+                    <div class="row-label">#Trx: ${item.label}</div>
                     <div class="cells">${digitsHtml}</div>
                     <div class="side-info">
                         <div class="${type === 'B' ? 'text-b' : 'text-s'}">${type}</div>
@@ -204,24 +193,18 @@
                 </div>`;
         });
 
-        // Drawing Line logic (အနီရောင် Solid Line ပြင်ဆင်ထားသော အပိုင်း)
         setTimeout(() => {
             canvas.width = container.offsetWidth;
             canvas.height = container.offsetHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.strokeStyle = "#ff4444"; // အနီရောင်
+            ctx.strokeStyle = "#ff4444"; 
             ctx.lineWidth = 1.0; 
-            ctx.setLineDash([1.5,1.5]); // Dash Line
+            ctx.setLineDash([1.5,1.5]); 
             ctx.lineJoin = "round";
             ctx.lineCap = "round";
-            
-            // Glow Effect
             ctx.shadowBlur = 8;
             ctx.shadowColor = "#ff4444";
-            
             ctx.beginPath();
-
             let hasPoint = false;
             displayData.forEach((item, i) => {
                 const digit = parseInt(item.digit);
@@ -236,7 +219,7 @@
                 }
             });
             ctx.stroke();
-            ctx.shadowBlur = 0; // Glow reset
+            ctx.shadowBlur = 0;
         }, 300);
     }
 
