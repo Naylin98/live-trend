@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRX Live - Direct Fast</title>
+    <title>TRX Live - Grid View</title>
     <style>
         :root {
             --bg-dark: #0f172a;
             --card-bg: #1e293b;
             --accent: #f1c40f;
             --text-main: #f8fafc;
-            --text-dim: #94a3b8;
             --border: #334155;
         }
 
@@ -18,121 +17,77 @@
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background-color: var(--bg-dark); 
             color: var(--text-main); 
-            margin: 0; padding: 15px;
-            display: flex; flex-direction: column; align-items: center;
+            margin: 0; padding: 10px;
         }
 
-        .container { 
-            background: var(--card-bg); 
-            padding: 20px; border-radius: 20px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
-            width: 100%; max-width: 1200px; 
-            border: 1px solid var(--border);
-        }
-
-        .header { 
-            text-align: center; color: var(--accent); 
-            font-size: 20px; font-weight: 800; letter-spacing: 2px;
-            margin-bottom: 20px; padding-bottom: 15px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        /* Horizontal Scroll - ဘေးတိုက်ကြည့်ရန် */
-        #chartData {
+        /* ဘေးတိုက် Scroll ဆွဲမည့် Container */
+        #chartContainer {
             display: flex;
-            flex-direction: row;
+            flex-direction: row; /* Column များကို ဘေးတိုက်စီမည် */
             overflow-x: auto;
-            gap: 15px;
-            padding: 10px 5px 25px 5px;
+            gap: 20px;
+            padding: 10px;
             scroll-behavior: smooth;
+            height: 90vh; /* Screen အပြည့်နီးပါးယူမည် */
         }
 
-        .row-grid {
-            display: flex; flex-direction: column;
-            min-width: 260px;
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 15px;
+        /* Column တစ်ခုချင်းစီ (၁၀ ကြောင်းစာ စုစည်းမှု) */
+        .data-column {
+            display: flex;
+            flex-direction: column-reverse; /* အောက်ကနေ အပေါ်သို့ စီမည် */
+            gap: 10px;
+            min-width: 300px;
             flex-shrink: 0;
-            transition: transform 0.2s;
         }
 
-        .row-grid:hover { transform: translateY(-5px); border-color: var(--accent); }
+        /* တစ်ကြောင်းချင်းစီ၏ Card ပုံစံ */
+        .row-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            transition: 0.3s;
+            animation: fadeIn 0.5s ease-in;
+        }
 
-        .row-label { font-size: 13px; color: var(--text-dim); text-align: center; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .cells { display: flex; justify-content: center; gap: 4px; margin-bottom: 15px; }
+        .row-label { font-size: 11px; color: #94a3b8; border-bottom: 1px solid #475569; margin-bottom: 8px; }
 
-        .cell { width: 22px; height: 22px; line-height: 22px; text-align: center; font-weight: bold; font-size: 12px; border-radius: 50%; color: #475569; border: 1px solid #334155; }
+        .cells { display: flex; gap: 4px; margin-bottom: 8px; justify-content: center; }
 
-        .active-green { background: #22c55e !important; color: white !important; box-shadow: 0 0 8px #22c55e; }
-        .active-red { background: #ef4444 !important; color: white !important; box-shadow: 0 0 8px #ef4444; }
-        .active-purple { background: #a855f7 !important; color: white !important; box-shadow: 0 0 8px #a855f7; }
+        .cell { width: 20px; height: 20px; line-height: 20px; text-align: center; font-weight: bold; font-size: 11px; border-radius: 50%; color: #475569; border: 1px solid #334155; }
 
-        .side-info { display: flex; flex-direction: column; gap: 8px; }
-        .info-row { display: flex; justify-content: space-between; align-items: center; }
+        .active-green { background: #22c55e !important; color: white !important; }
+        .active-red { background: #ef4444 !important; color: white !important; }
+        .active-purple { background: #a855f7 !important; color: white !important; }
 
-        .type-tag { font-weight: 900; font-size: 18px; }
-        .text-s { color: #3498db; }
-        .text-b { color: #e67e22; }
-        .pred-val { color: var(--accent); font-size: 20px; font-weight: bold; }
-        .res-win { color: #22c55e; font-weight: bold; }
-        .res-loss { color: #ef4444; font-weight: bold; }
+        .info { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .type-b { color: #e67e22; font-weight: bold; }
+        .type-s { color: #3498db; font-weight: bold; }
+        .pred { color: var(--accent); font-weight: bold; }
+        .win { color: #22c55e; } .loss { color: #ef4444; }
 
-        .extra-msg { font-size: 12px; color: var(--text-dim); font-style: italic; }
-        .strend-box { background: #1e293b; padding: 6px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 12px; color: #cbd5e1; word-break: break-all; }
-
-        .footer { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px; color: var(--text-dim); }
-
-        #chartData::-webkit-scrollbar { height: 6px; }
-        #chartData::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        #chartContainer::-webkit-scrollbar { height: 8px; }
+        #chartContainer::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">TRX MODERN TREND (DIRECT)</div>
-    <div id="chartData">
-        <div style="padding: 20px; text-align: center; width: 100%;">⌛ Connecting Directly to Google Cloud...</div>
-    </div>
-</div>
-
-<div class="footer">
-    <div id="status">● Status: Initializing...</div>
-    <div id="timer">Last Update: --:--:--</div>
+<div id="chartContainer">
+    <div style="padding: 20px;">⌛ Connecting to TRX...</div>
 </div>
 
 <script>
-    // Proxy မပါသော တိုက်ရိုက် URL
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFu8umzrtkcV-KRXWGGc_8v8xQMU9XBkl2HbPevwnp7ilUBPud2pIkpjpWQNQi8HOM/exec";
-    const REFRESH_RATE = 7000; // ၇ စက္ကန့်တစ်ခါ Update လုပ်မည် (ပိုမြန်သည်)
+    const REFRESH_RATE = 7000;
 
     async function fetchTrend() {
-        const statusEl = document.getElementById('status');
-        
         try {
-            // Proxy မပါဘဲ တိုက်ရိုက် Fetch လုပ်ခြင်း
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: "GET",
-                redirect: "follow" // Google Script ၏ Redirect ကို လိုက်နာရန်
-            });
-
-            if (!response.ok) throw new Error("Network Error");
-            
+            const response = await fetch(GOOGLE_SCRIPT_URL, { redirect: "follow" });
             const data = await response.json();
-
-            if (data && data.length > 0) {
-                renderCards(data.slice(-25)); 
-                statusEl.innerHTML = "● Direct Connected (No-Proxy)";
-                statusEl.style.color = "#22c55e";
-                document.getElementById('timer').innerText = "Last Update: " + new Date().toLocaleTimeString();
-            }
-        } catch (err) {
-            console.error("Fetch Error:", err);
-            statusEl.innerHTML = "○ Connection Failed (Check VPN)";
-            statusEl.style.color = "#ef4444";
-        }
+            if (data && data.length > 0) renderGrid(data);
+        } catch (err) { console.error(err); }
     }
 
     function getDigitClass(d) {
@@ -143,42 +98,45 @@
         return "";
     }
 
-    function renderCards(items) {
-        const container = document.getElementById('chartData');
+    function renderGrid(items) {
+        const container = document.getElementById('chartContainer');
         container.innerHTML = "";
 
-        items.forEach((item) => {
-            const d = parseInt(item.digit);
-            const type = (item.type || "S").toUpperCase();
-            const resClass = item.result === "WIN" ? "res-win" : (item.result === "LOSS" ? "res-loss" : "");
+        // ဒေတာများကို ၁၀ ခုစီ အုပ်စုခွဲခြင်း (Chunks)
+        const chunkSize = 10;
+        for (let i = 0; i < items.length; i += chunkSize) {
+            const chunk = items.slice(i, i + chunkSize);
+            const columnDiv = document.createElement('div');
+            columnDiv.className = 'data-column';
 
-            let cellsHtml = "";
-            for (let i = 0; i <= 9; i++) {
-                const active = (i === d) ? getDigitClass(i) : "";
-                cellsHtml += `<div class="cell ${active}">${i}</div>`;
-            }
+            chunk.forEach(item => {
+                const d = parseInt(item.digit);
+                const type = (item.type || "S").toUpperCase();
+                const resClass = item.result === "WIN" ? "win" : (item.result === "LOSS" ? "loss" : "");
 
-            container.innerHTML += `
-                <div class="row-grid">
-                    <div class="row-label">BLOCK #${item.label || '---'}</div>
-                    <div class="cells">${cellsHtml}</div>
-                    <div class="side-info">
-                        <div class="info-row">
-                            <div class="type-tag ${type === 'B' ? 'text-b' : 'text-s'}">${type} (${d})</div>
-                            <div class="pred-val">${item.prediction || ""}</div>
-                            <div class="${resClass}">${item.result || "WAIT"}</div>
+                let cellsHtml = "";
+                for (let j = 0; j <= 9; j++) {
+                    const active = (j === d) ? getDigitClass(j) : "";
+                    cellsHtml += `<div class="cell ${active}">${j}</div>`;
+                }
+
+                columnDiv.innerHTML += `
+                    <div class="row-card">
+                        <div class="row-label">#${item.label}</div>
+                        <div class="cells">${cellsHtml}</div>
+                        <div class="info">
+                            <span class="${type === 'B' ? 'type-b' : 'type-s'}">${type}(${d})</span>
+                            <span class="pred">${item.prediction || ""}</span>
+                            <span class="${resClass}">${item.result || "-"}</span>
                         </div>
-                        <div class="extra-msg">${item.extraData || "Real-time Flow"}</div>
-                        <div class="strend-box">${item.strend || "Analyzing..."}</div>
                     </div>
-                </div>
-            `;
-        });
-
-        // ညာဘက်အစွန်ဆုံးသို့ Auto Scroll
-        setTimeout(() => {
-            container.scrollLeft = container.scrollWidth;
-        }, 300);
+                `;
+            });
+            container.appendChild(columnDiv);
+        }
+        
+        // အသစ်ဆုံး Column ရှိရာ ညာဘက်သို့ Scroll လုပ်ပေးခြင်း
+        setTimeout(() => { container.scrollLeft = container.scrollWidth; }, 300);
     }
 
     fetchTrend();
